@@ -38,26 +38,6 @@ console.log("reading file");
 /////////////////////////////////////////////////////////////////////
 // SERVER
 
-const replaceProduct = (template, id) => {
-  const [product] = dataObj.filter((object) => {
-    return object.id === id;
-  });
-
-  let output = template.replace(/{%PRODUCTNAME%}/g, product.productName);
-  output = output.replace(/{%IMAGE%}/g, product.image);
-  output = output.replace(/{%PRICE%}/g, product.price);
-  output = output.replace(/{%FROM%}/g, product.from);
-  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
-  output = output.replace(/{%QUANTITY%}/g, product.quantity);
-  output = output.replace(/{%DESCRIPTION%}/g, product.description);
-  output = output.replace(/{%ID%}/g, product.id);
-
-  if (!product.organic) {
-    output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
-  }
-  return output;
-};
-
 const replaceTemplate = (template, product) => {
   let output = template.replace(/{%PRODUCTNAME%}/g, product.productName);
   output = output.replace(/{%IMAGE%}/g, product.image);
@@ -111,7 +91,9 @@ const server = http.createServer((req, res) => {
   } else if (pathname === "/product") {
     res.writeHead(200, { "Content-type": "text/html" });
 
-    const output = replaceProduct(templateProduct, +query.id);
+    const product = dataObj[query.id];
+
+    const output = replaceTemplate(templateProduct, product);
 
     res.end(output);
 
