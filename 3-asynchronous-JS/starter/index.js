@@ -19,8 +19,28 @@ const writeFilePromise = (file, data) => {
   });
 };
 
+// Same process with async/await
+const getDogPic = async () => {
+  try {
+    const breed = await readFilePromise(`${__dirname}/dog.txt`);
+    console.log(`Breed: ${breed}`);
+    const res = await superagent.get(
+      `https://dog.ceo/api/breed/${breed}/images/random`
+    );
+    await writeFilePromise('dog-img.txt', res.body.message);
+  } catch (error) {
+    console.error(error.message);
+  } finally {
+    console.log('Random dog image saved to file');
+  }
+};
+
+getDogPic();
+
+/*
 // Promesified version of the read file and wrte file.
 // This is done to escape callback hell
+// Using promises and consuming them with the then method
 readFilePromise(`${__dirname}/dog.txt`)
   .then((data) => {
     console.log(`Breed: ${data}`);
@@ -38,6 +58,8 @@ readFilePromise(`${__dirname}/dog.txt`)
     console.log('Error!');
     console.error(err.message);
   });
+
+  */
 
 /*
 fs.readFile(`${__dirname}/dog.txt`, 'utf-8', (err, data) => {
