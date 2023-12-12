@@ -115,7 +115,8 @@ const getDogPic2 = async () => {
       `https://dog.ceo/api/breed/${data}/images/random`
     );
     const res2Pro = superagent.get(
-      `https://dog.ceo/api/breed/${data}/images/random`
+      `https://dog.ceo/api/breed/${data}/images/ra
+      ndom`
     );
     const res3Pro = superagent.get(
       `https://dog.ceo/api/breed/${data}/images/random`
