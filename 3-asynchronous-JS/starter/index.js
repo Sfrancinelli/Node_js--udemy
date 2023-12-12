@@ -1,6 +1,45 @@
 const fs = require('fs');
 const superagent = require('superagent');
 
+const readFilePromise = (file) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(file, 'utf-8', (err, data) => {
+      if (err) reject(err.message);
+      resolve(data);
+    });
+  });
+};
+
+const writeFilePromise = (file, data) => {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(file, data, (err) => {
+      if (err) reject(err.message);
+      resolve('Success');
+    });
+  });
+};
+
+// Promesified version of the read file and wrte file.
+// This is done to escape callback hell
+readFilePromise(`${__dirname}/dog.txt`)
+  .then((data) => {
+    console.log(`Breed: ${data}`);
+    return superagent.get(`https://dog.ceo/api/breed/${data}/images/random`);
+  })
+  .then((res) => {
+    console.log(res.body.message);
+
+    return writeFilePromise('dog-img.txt', res.body.message);
+  })
+  .then(() => {
+    console.log('Random dog image saved to file');
+  })
+  .catch((err) => {
+    console.log('Error!');
+    console.error(err.message);
+  });
+
+/*
 fs.readFile(`${__dirname}/dog.txt`, 'utf-8', (err, data) => {
   console.log(`Breed: ${data}`);
 
@@ -18,3 +57,4 @@ fs.readFile(`${__dirname}/dog.txt`, 'utf-8', (err, data) => {
       console.error(err.message);
     });
 });
+*/
