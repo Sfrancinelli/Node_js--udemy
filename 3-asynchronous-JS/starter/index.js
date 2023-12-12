@@ -19,6 +19,7 @@ const writeFilePromise = (file, data) => {
   });
 };
 
+/*
 // Same process with async/await
 const getDogPic = async () => {
   try {
@@ -30,13 +31,35 @@ const getDogPic = async () => {
     await writeFilePromise('dog-img.txt', res.body.message);
   } catch (error) {
     console.error(error.message);
+    throw err;
   } finally {
     console.log('Random dog image saved to file');
   }
+  return 'READY';
 };
-
-getDogPic();
-
+*/
+/*
+// Reading the returned value from a async function
+// 1)
+getDogPic()
+  .then((value) => {
+    console.log(value);
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
+  */
+/*
+// 2)
+(async () => {
+  try {
+    const value = await getDogPic();
+    console.log(value);
+  } catch (err) {
+    console.error(err);
+  }
+})();
+*/
 /*
 // Promesified version of the read file and wrte file.
 // This is done to escape callback hell
@@ -80,3 +103,36 @@ fs.readFile(`${__dirname}/dog.txt`, 'utf-8', (err, data) => {
     });
 });
 */
+
+///////////////////////////////////////////////////////////////////////////////{
+// Waiting multiple promises at the same time
+const getDogPic2 = async () => {
+  try {
+    const data = await readFilePromise(`${__dirname}/dog.txt`);
+    console.log(`Breed: ${data}`);
+
+    const res1Pro = superagent.get(
+      `https://dog.ceo/api/breed/${data}/images/random`
+    );
+    const res2Pro = superagent.get(
+      `https://dog.ceo/api/breed/${data}/images/random`
+    );
+    const res3Pro = superagent.get(
+      `https://dog.ceo/api/breed/${data}/images/random`
+    );
+
+    const all = await Promise.all([res1Pro, res2Pro, res3Pro]);
+    const imgs = all.map((el) => el.body.message);
+    console.log(imgs);
+    await writeFilePromise('dog-img.txt', imgs.join('\n'));
+  } catch (err) {
+    console.log(err);
+
+    throw err;
+  }
+  return 'READY';
+};
+(async () => {
+  const result = await getDogPic2();
+  console.log(result);
+})();
