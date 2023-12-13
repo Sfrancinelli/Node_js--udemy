@@ -4,33 +4,19 @@ const app = express();
 
 app.use(express.json());
 
-/*
-app.get('/', (req, res) => {
-  res.status(200);
-  res.json({ message: 'Express message', app: 'Natours' });
-});
-
-app.post('/', (req, res) => {
-  res.send('You can post to this endpoint');
-});
-*/
-
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     results: tours.length,
     data: { tours: tours },
   });
-});
+};
 
-// To get a variable in the URL the : its needed: /api/v1/tours/:id.
-// If the parameter needs to be optional, a ? its needed: /api/v1/tours/:optional?
-
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
   console.log(req.params);
 
   //   if (parseInt(req.params.id) > tours.length) {
@@ -55,9 +41,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
       tour,
     },
   });
-});
+};
 
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
   //   console.log(req.body);
 
   const newId = tours[tours.length - 1].id + 1;
@@ -78,9 +64,9 @@ app.post('/api/v1/tours', (req, res) => {
       });
     }
   );
-});
+};
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   const tourId = req.params.id;
   const updatedFields = req.body;
 
@@ -116,11 +102,9 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       });
     }
   );
-});
+};
 
-// DELETE not really working given the static nature of the data
-// The data keeps renovating itself but it deletes the element specified
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
   const tourId = req.params.id;
 
   const indexTour = tours.findIndex((tour) => tour.id === parseInt(tourId));
@@ -146,7 +130,30 @@ app.delete('/api/v1/tours/:id', (req, res) => {
       });
     }
   );
-});
+};
+
+//////////////////////////////////////////////////////////////////
+// ROUTES
+
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+
+app
+  .route('/api/v1/tours/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour);
+
+/* OLD WAY
+app.get('/api/v1/tours', getAllTours);
+// To get a variable in the URL the : its needed: /api/v1/tours/:id.
+// If the parameter needs to be optional, a ? its needed: /api/v1/tours/:optional?
+app.get('/api/v1/tours/:id', getTour);
+app.post('/api/v1/tours', createTour);
+app.patch('/api/v1/tours/:id', updateTour);
+// DELETE not really working given the static nature of the data
+// The data keeps renovating itself but it deletes the element specified
+app.delete('/api/v1/tours/:id', deleteTour);
+*/
 
 const PORT = 3000;
 
