@@ -80,6 +80,44 @@ app.post('/api/v1/tours', (req, res) => {
   );
 });
 
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const tourId = req.params.id;
+  const updatedFields = req.body;
+
+  console.log(updatedFields);
+
+  // Perform validation and update logic here
+  const updatedTour = tours.find((tour) => tour.id === parseInt(tourId));
+  if (!updatedTour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Tour not found',
+    });
+  }
+
+  // Updating the fields. Checking if the fields that came in the request corresponds to the fields in the actual tour object. If so, updating them.
+  for (const key in updatedFields) {
+    console.log(updatedTour[key], updatedFields[key]);
+    if (key in updatedTour) {
+      updatedTour[key] = updatedFields[key];
+    }
+  }
+
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(tours),
+    (err) => {
+      if (err) return console.error(err.message);
+      res.status(201).json({
+        status: 'success',
+        data: {
+          tour: updatedTour,
+        },
+      });
+    }
+  );
+});
+
 const PORT = 3000;
 
 app.listen(PORT, () => {
