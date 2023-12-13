@@ -118,6 +118,36 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   );
 });
 
+// DELETE not really working given the static nature of the data
+// The data keeps renovating itself but it deletes the element specified
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const tourId = req.params.id;
+
+  const indexTour = tours.findIndex((tour) => tour.id === parseInt(tourId));
+  if (!indexTour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Tour not found',
+    });
+  }
+
+  const toursCopy = tours.filter((tour) => tour.id !== parseInt(tourId));
+
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple-deleted.json`,
+    JSON.stringify(toursCopy),
+    (err) => {
+      if (err) return console.error(err.message);
+      console.log('Updated file!');
+      res.status(204).json({
+        status: 'success',
+        message: `Tour deleted succesfully`,
+        data: null,
+      });
+    }
+  );
+});
+
 const PORT = 3000;
 
 app.listen(PORT, () => {
