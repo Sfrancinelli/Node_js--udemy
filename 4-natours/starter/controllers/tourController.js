@@ -68,12 +68,6 @@ exports.updateTour = (req, res) => {
 
   // Perform validation and update logic here
   const updatedTour = tours.find((tour) => tour.id === parseInt(tourId));
-  if (!updatedTour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Tour not found',
-    });
-  }
 
   // Updating the fields. Checking if the fields that came in the request corresponds to the fields in the actual tour object. If so, updating them.
   for (const key in updatedFields) {
@@ -84,7 +78,7 @@ exports.updateTour = (req, res) => {
   }
 
   fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
+    `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
       if (err) return console.error(err.message);
@@ -101,18 +95,10 @@ exports.updateTour = (req, res) => {
 exports.deleteTour = (req, res) => {
   const tourId = req.params.id;
 
-  const indexTour = tours.findIndex((tour) => tour.id === parseInt(tourId));
-  if (!indexTour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Tour not found',
-    });
-  }
-
   const toursCopy = tours.filter((tour) => tour.id !== parseInt(tourId));
 
   fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple-deleted.json`,
+    `${__dirname}/../dev-data/data/tours-simple-deleted.json`,
     JSON.stringify(toursCopy),
     (err) => {
       if (err) return console.error(err.message);
