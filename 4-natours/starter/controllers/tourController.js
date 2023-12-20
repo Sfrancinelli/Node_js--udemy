@@ -1,8 +1,10 @@
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
 const fs = require('fs');
 
 // LOAD DATA
 const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
+  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
 );
 
 exports.checkID = (req, res, next, val) => {
@@ -39,7 +41,9 @@ exports.getAllTours = (req, res) => {
 exports.getTour = (req, res) => {
   console.log(req.params);
 
-  const tour = tours.find((tour) => tour.id === parseInt(req.params.id));
+  const tour = tours.find(
+    (curTour) => curTour.id === parseInt(req.params.id, 10),
+  );
 
   res.status(200).json({
     status: 'success',
@@ -68,7 +72,7 @@ exports.createTour = (req, res) => {
           tour: newTour,
         },
       });
-    }
+    },
   );
 };
 
@@ -79,7 +83,7 @@ exports.updateTour = (req, res) => {
   console.log(updatedFields);
 
   // Perform validation and update logic here
-  const updatedTour = tours.find((tour) => tour.id === parseInt(tourId));
+  const updatedTour = tours.find((tour) => tour.id === parseInt(tourId, 10));
 
   // Updating the fields. Checking if the fields that came in the request corresponds to the fields in the actual tour object. If so, updating them.
   for (const key in updatedFields) {
@@ -100,14 +104,14 @@ exports.updateTour = (req, res) => {
           tour: updatedTour,
         },
       });
-    }
+    },
   );
 };
 
 exports.deleteTour = (req, res) => {
   const tourId = req.params.id;
 
-  const toursCopy = tours.filter((tour) => tour.id !== parseInt(tourId));
+  const toursCopy = tours.filter((tour) => tour.id !== parseInt(tourId, 10));
 
   fs.writeFile(
     `${__dirname}/../dev-data/data/tours-simple-deleted.json`,
@@ -120,6 +124,6 @@ exports.deleteTour = (req, res) => {
         message: `Tour deleted succesfully`,
         data: null,
       });
-    }
+    },
   );
 };
