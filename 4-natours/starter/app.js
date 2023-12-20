@@ -7,6 +7,8 @@ const userRouter = require('./routes/userRoutes.js');
 // MIDDLEWARES
 app.use(morgan('dev'));
 app.use(express.json());
+// Middleware to serve static files on the browser
+app.use(express.static(`${__dirname}/public`));
 
 // Creating own middleware
 /*
