@@ -1,8 +1,8 @@
 /* eslint-disable import/newline-after-import */
 const dotenv = require('dotenv');
 dotenv.config({ path: './config.env' });
-const app = require('./app');
 const mongoose = require('mongoose');
+const app = require('./app');
 
 // Node.js env variables
 // console.log(process.env);
@@ -39,6 +39,24 @@ mongoose
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error.message);
   });
+
+const tourSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'A tour must have a name'],
+    unique: true,
+  },
+  rating: {
+    type: Number,
+    default: 0,
+  },
+  price: {
+    type: Number,
+    required: [true, 'A tour must have a price'],
+  },
+});
+
+const Tour = mongoose.model('Tour', tourSchema);
 
 // SERVER
 const PORT = process.env.PORT || 3000;
