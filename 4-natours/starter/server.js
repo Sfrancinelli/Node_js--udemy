@@ -58,7 +58,22 @@ const tourSchema = new mongoose.Schema({
 
 const Tour = mongoose.model('Tour', tourSchema);
 
+const testTour = new Tour({
+  name: 'The Ocean Swimmer',
+  rating: 4.7,
+  price: 497,
+});
+
 // SERVER
+testTour
+  .save()
+  .then((doc) => {
+    console.log(doc);
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
