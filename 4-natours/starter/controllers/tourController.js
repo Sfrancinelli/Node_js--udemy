@@ -1,6 +1,7 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 const fs = require('fs');
+const Tour = require('../models/tourModel');
 
 // LOAD DATA
 const tours = JSON.parse(
