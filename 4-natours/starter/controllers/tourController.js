@@ -7,13 +7,20 @@ exports.getAllTours = async (req, res) => {
   // Getting all the data from the DB
   try {
     // BUILD QUERY
+    // 1) Filtering
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
 
     console.log(req.query, queryObj);
 
-    const query = Tour.find(queryObj);
+    // 2) Advance filtering
+    let queryStr = JSON.stringify(queryObj);
+    // Replacing the operators that come from the query to the MongoDB operators. The operators come from the query without the dollar sign $, so, below, what i did was create a regular expression that finds the operators (gte,gt,lte,lt). It needs to find em exactly (thats why the \b) and it cant find multiples one (thats why the "g" at the end). Once it does the finding, the callback function adds the dollar sign before the matched operator!
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    console.log(JSON.parse(queryStr));
+
+    const query = Tour.find(JSON.parse(queryStr));
 
     // EXECUTE QUERY
     const tours = await query;
