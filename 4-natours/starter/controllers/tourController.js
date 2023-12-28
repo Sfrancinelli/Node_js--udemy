@@ -9,61 +9,76 @@ exports.aliasTopTour = (req, res, next) => {
   next();
 };
 
-// HANDLERS
-exports.getAllTours = async (req, res) => {
-  // Getting all the data from the DB
-  try {
-    // BUILD QUERY
-    // 1) Filtering
-    const queryObj = { ...req.query };
+class APIFeatures {
+  constructor(query, queryString) {
+    this.query = query;
+    this.queryString = queryString;
+  }
+
+  filter() {
+    const queryObj = { ...this.queryString };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
-
-    console.log(req.query, queryObj);
 
     // 2) Advance filtering
     let queryStr = JSON.stringify(queryObj);
     // Replacing the operators that come from the query to the MongoDB operators. The operators come from the query without the dollar sign $, so, below, what i did was create a regular expression that finds the operators (gte,gt,lte,lt). It needs to find em exactly (thats why the \b) and it cant find multiples one (thats why the "g" at the end). Once it does the finding, the callback function adds the dollar sign before the matched operator!
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    console.log(JSON.parse(queryStr));
 
-    let query = Tour.find(JSON.parse(queryStr));
+    this.query = this.query.find(JSON.parse(queryStr));
 
-    // 3) Sorting
-    if (req.query.sort) {
+    return this;
+  }
+
+  sort() {
+    if (this.queryString.sort) {
       // Getting multiple sorting requirements and passing it to the sort function.
-      const sortBy = req.query.sort.split(',').join(' ');
+      const sortBy = this.queryString.sort.split(',').join(' ');
       console.log(sortBy);
-      query = query.sort(sortBy);
+      this.query = this.query.sort(sortBy);
     } else {
-      query = query.sort('-createdAt');
+      this.query = this.query.sort('-createdAt');
     }
 
-    // 4) Field limiting
-    if (req.query.fields) {
+    return this;
+  }
+
+  limitFields() {
+    if (this.queryString.fields) {
       // Selecting the fields that will be sent to the client
-      const fields = req.query.fields.split(',').join(' ');
+      const fields = this.queryString.fields.split(',').join(' ');
       console.log(fields);
-      query = query.select(fields);
+      this.query = this.query.select(fields);
     } else {
       // If no field is selected, the __v fields is removed (thats why the prefix "-")
-      query = query.select('-__v');
+      this.query = this.query.select('-__v');
     }
 
-    // 5) Pagination
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
+    return this;
+  }
+
+  paginate() {
+    const page = this.queryString.page * 1 || 1;
+    const limit = this.queryString.limit * 1 || 100;
     const skip = (page - 1) * limit;
 
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (numTours <= skip) throw new Error('This page does not exists');
-    }
+    this.query = this.query.skip(skip).limit(limit);
 
-    query = query.skip(skip).limit(limit);
+    return this;
+  }
+}
 
+// HANDLERS
+exports.getAllTours = async (req, res) => {
+  // Getting all the data from the DB
+  try {
     // EXECUTE QUERY
-    const tours = await query;
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const tours = await features.query;
 
     // SEND RESPONSE
     res.status(200).json({
