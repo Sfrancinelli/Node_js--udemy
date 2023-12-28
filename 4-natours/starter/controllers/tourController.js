@@ -32,6 +32,17 @@ exports.getAllTours = async (req, res) => {
       query = query.sort('-createdAt');
     }
 
+    // 4) Field limiting
+    if (req.query.fields) {
+      // Selecting the fields that will be sent to the client
+      const fields = req.query.fields.split(',').join(' ');
+      console.log(fields);
+      query = query.select(fields);
+    } else {
+      // If no field is selected, the __v fields is removed (thats why the prefix "-")
+      query = query.select('-__v');
+    }
+
     // EXECUTE QUERY
     const tours = await query;
 
