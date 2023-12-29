@@ -1,10 +1,28 @@
+const dotenv = require('dotenv');
+dotenv.config({ path: '../../config.env' });
 const mongoose = require('mongoose');
 const fs = require('fs');
-const dotenv = require('dotenv');
 const Tour = require('../../models/tourModel');
 
-dotenv.config({ path: './config.env' });
+// For my PC
+const DB = process.env.DATABASE.replace(
+  '<PASSWORD>',
+  process.env.DATABASE_PASSWORD,
+);
 
+mongoose
+  .connect(DB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  })
+  .then((connection) => {
+    console.log(connection.connections);
+    console.log('DB Connection succesfull');
+  });
+
+// For work
+/*
 mongoose
   .connect(process.env.DATABASE_LOCAL, {
     useNewUrlParser: true,
@@ -12,6 +30,7 @@ mongoose
     useFindAndModify: true,
   })
   .then(() => console.log('DB connection successful!'));
+*/
 
 // READ JSON FILE
 const tours = JSON.parse(

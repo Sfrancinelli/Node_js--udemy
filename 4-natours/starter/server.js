@@ -8,7 +8,6 @@ const app = require('./app');
 // console.log(process.env);
 
 // This is for Atlas connection:
-/*
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
   process.env.DATABASE_PASSWORD,
@@ -24,9 +23,9 @@ mongoose
     console.log(connection.connections);
     console.log('DB Connection succesfull');
   });
-*/
 
 // This is for local connection:
+/*
 mongoose
   .connect('mongodb://127.0.0.1:27017/natours', {
     useNewUrlParser: true,
@@ -39,6 +38,7 @@ mongoose
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error.message);
   });
+  */
 
 const PORT = process.env.PORT || 3000;
 
