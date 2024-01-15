@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const Tour = require('../../models/tourModel');
 
+/*
 // For my PC
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
@@ -20,9 +21,10 @@ mongoose
     console.log(connection.connections);
     console.log('DB Connection succesfull');
   });
+*/
 
 // For work
-/*
+
 mongoose
   .connect(process.env.DATABASE_LOCAL, {
     useNewUrlParser: true,
@@ -30,7 +32,6 @@ mongoose
     useFindAndModify: true,
   })
   .then(() => console.log('DB connection successful!'));
-*/
 
 // READ JSON FILE
 const tours = JSON.parse(
