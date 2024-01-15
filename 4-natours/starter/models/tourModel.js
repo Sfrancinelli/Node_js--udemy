@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -70,8 +71,21 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
-tourSchema.pre('save', function () {
-  console.log(this);
+tourSchema.pre('save', function (next) {
+  // console.log(this);
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// It is possible to have multiple document middlewares
+tourSchema.pre('save', function (next) {
+  console.log('Will save document...');
+  next();
+});
+
+// Runs After .save()
+tourSchema.post('save', function (doc, next) {
+  console.log(doc), next();
 });
 
 const Tour = mongoose.model('Tour', tourSchema);
