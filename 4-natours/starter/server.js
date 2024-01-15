@@ -1,6 +1,6 @@
 /* eslint-disable import/newline-after-import */
 const dotenv = require('dotenv');
-dotenv.config({ path: './config.env' });
+dotenv.config({ path: `${__dirname}/.config.env` });
 const mongoose = require('mongoose');
 const app = require('./app');
 
@@ -42,6 +42,8 @@ mongoose
   });
 
 const PORT = process.env.PORT || 3000;
+
+// console.log(process.env.PORT);
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}...`);
