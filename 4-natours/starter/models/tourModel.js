@@ -115,23 +115,23 @@ tourSchema.post('save', function (doc, next) {
 
 // QUERY MIDDLEWARE: The difference its that now we're targetting a query and not a document
 // The regular expresion /^find/ searchs for any method that starts with find. find(), findOne(), findOneAndRemove(), etc..
-// tourSchema.pre(/^find/, function (next) {
-//   this.find({ secretTour: { $ne: true } });
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
 
-//   this.start = Date.now();
+  this.start = Date.now();
 
-//   next();
-// });
+  next();
+});
 // The code above changes the result of querying the tours in the API. This happens because in the tourController.js, in the methods that query the objects, the find() method its used. So, this QUERY MIDDLEWARE happens before ssaid method is executed
 
 // The post runs after the find method is executed
-// tourSchema.post(/^find/, function (docs, next) {
-//   // console.log(docs);
+tourSchema.post(/^find/, function (docs, next) {
+  // console.log(docs);
 
-//   console.log(`Query took ${Date.now() - this.start} miliseconds`);
+  console.log(`Query took ${Date.now() - this.start} miliseconds`);
 
-//   next();
-// });
+  next();
+});
 
 // AGREGATION MIDDLEWARE. The aggregation middleware specifies a condition for the aggregation of results in a model level. In this case, this agregation middleware is hiding the tours with the secretTour property set to true. But its possible to do any kind of aggregation from this middleware.
 tourSchema.pre('aggregate', function (next) {
