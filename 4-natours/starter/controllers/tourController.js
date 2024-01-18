@@ -13,7 +13,7 @@ exports.aliasTopTour = (req, res, next) => {
 };
 
 // HANDLERS
-exports.getAllTours = async (req, res) => {
+exports.getAllTours = async (req, res, next) => {
   // Getting all the data from the DB
   try {
     // EXECUTE QUERY
@@ -31,10 +31,7 @@ exports.getAllTours = async (req, res) => {
       data: { tours: tours },
     });
   } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err.message,
-    });
+    next(err);
   }
 };
 
@@ -54,10 +51,7 @@ exports.getTour = async (req, res, next) => {
       },
     });
   } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err.message,
-    });
+    next(err);
   }
 };
 
@@ -73,7 +67,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.updateTour = async (req, res) => {
+exports.updateTour = async (req, res, next) => {
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -91,14 +85,11 @@ exports.updateTour = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteTour = async (req, res) => {
+exports.deleteTour = async (req, res, next) => {
   try {
     const tour = await Tour.findByIdAndDelete(req.params.id);
 
@@ -112,10 +103,7 @@ exports.deleteTour = async (req, res) => {
       data: null,
     });
   } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err.message,
-    });
+    next(err);
   }
 };
 
