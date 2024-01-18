@@ -6,6 +6,16 @@ const handleCastErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleDuplicatedFieldsDB = (err) => {
+  const key = { ...Object.keys(err.keyValue) };
+  const value = { ...Object.values(err.keyValue) };
+  console.log(value);
+  console.log(key);
+  const message = `Duplicate field ('${key[0]}' : '${value[0]}'). Use another ${key[0]}`;
+
+  return new AppError(message, 400);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -49,6 +59,8 @@ module.exports = (err, req, res, next) => {
 
     // The check for the name must be from the original error object (err). In the destructuring of the err, the property name gets lost
     if (err.name === 'CastError') error = handleCastErrorDB(error);
+
+    if (err.code === 11000) error = handleDuplicatedFieldsDB(error);
 
     sendErrorProd(error, res);
   }
