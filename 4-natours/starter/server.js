@@ -4,6 +4,12 @@ dotenv.config({ path: `${__dirname}/.config.env` });
 const mongoose = require('mongoose');
 const app = require('./app');
 
+process.on('uncaughtException', (err) => {
+  console.log('UNCAUGHT EXCEPTION, Shutting down...');
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
 // Node.js env variables
 // console.log(process.env);
 
@@ -51,11 +57,13 @@ const server = app.listen(PORT, () => {
 
 // Every unhandled rejection will be handled here. It's the safety net for the unhandled promise rejections
 process.on('unhandledRejection', (err) => {
+  console.log('UNHANDLED REJECTION, Shutting down...');
   console.log(err.name, err.message);
-  console.log('UNHANDLED REJECTION, EXITING PROCESS!');
   // Closing the server before shutting down the application to give time to the server to finish the request that are being handled at the moment
   server.close(() => {
     // Exit the process with code 1 (unhandled rejection)
     process.exit(1);
   });
 });
+
+// console.log(x); Example of uncaught exception
