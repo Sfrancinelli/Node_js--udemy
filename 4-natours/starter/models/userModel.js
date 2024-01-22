@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 /* Email custom validation
 const validateEmail = function (email) {
@@ -43,7 +44,31 @@ const userSchema = new mongoose.Schema({
     trim: true,
     required: [true, 'Password required'],
     minlegth: [8, 'The password must have more or equal than 8 characters'],
+    validate: {
+      // This will only work on SAVE() and CREATE(). So, when updating an user, it will be neccesary to use the save method to run this validation
+      validator: function (el) {
+        return this.password === el;
+      },
+      message: 'The passwords does not match',
+    },
   },
+});
+
+userSchema.pre('save', async function (next) {
+  try {
+    // Only run this function if password was actually modified
+    if (!this.isModified('password')) return next();
+
+    // Hash the password with a cost of 12
+    this.password = await bcrypt.hash(this.password, 12);
+
+    // The passwordConfirm field is only needed when creating a user fol validation purposes, once it passes the validation, the field is no longer needed and it can be deleted. It's not necessary to hash it to as it will be a intensive CPU process for no reason. The password is the only thing that must be saved and hashed
+    this.passwordConfirm = undefined;
+
+    next();
+  } catch (err) {
+    return next(err);
+  }
 });
 
 const User = mongoose.model('User', userSchema);
