@@ -24,6 +24,11 @@ app.use((req, res, next) => {
 });
 */
 
+app.use((req, res, next) => {
+  // console.log(req.headers);
+  next();
+});
+
 // ROUTES
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
