@@ -2,6 +2,7 @@ const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 const AppError = require('./../utils/appError');
+const { promisify } = require('util');
 
 const signToken = (id) => {
   return jwt.sign({ id: id }, process.env.JWT_SECRET, {
@@ -52,4 +53,32 @@ exports.login = catchAsync(async (req, res, next) => {
     status: 'success',
     token,
   });
+});
+
+exports.protect = catchAsync(async (req, res, next) => {
+  let token;
+  // 1) Getting JWT token and check if it exists
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  //   console.log(token);
+
+  // If no token found, it means that the user its not logged in and should not access our routes
+  if (!token) {
+    return next(
+      new AppError('You are not logged in! Please log in to continue', 401),
+    );
+  }
+  // 2) Verification of the JWT token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  console.log(decoded);
+
+  // 3) Check if user using the route still exists
+
+  // 4) Check if user changed password after the JWT token was issued
+  next();
 });
