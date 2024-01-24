@@ -17,6 +17,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     passwordChangedAt: req.body.passwordChangedAt,
+    role: req.body.role,
   });
 
   const token = signToken(newUser._id);
@@ -97,3 +98,18 @@ exports.protect = catchAsync(async (req, res, next) => {
   // Next will be executed only if the function passes all the if statements of course. This next, GRANTS ACCESS TO THE PROTECTED ROUTE
   next();
 });
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    // Roles ['admin', 'lead-guide']. role='user'
+    // This if statement is checking if the user.role is contained in the roles array. The roles array is as said above, ['admin', 'lead-guide']. If the user has the role property set to admin, the function will call next. Same with lead guide. But if the role is 'user', the includes method will not find that in the array, leading to the AppError
+    // The roles array gets to the middleware function from the wrapper function beacuse of a clousure
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403),
+      );
+    }
+
+    next();
+  };
+};
