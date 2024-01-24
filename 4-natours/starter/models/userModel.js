@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 /* Email custom validation
 const validateEmail = function (email) {
@@ -59,6 +60,8 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -99,6 +102,23 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 
   // False means NOT changed
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  // Same as with passwords, its imperative to not save the plain value in the DDBB to avoid hackers from retrieveing the information easily. It needs to be encrypted
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  console.log({ resetToken }, this.passwordResetToken);
+
+  // Setting the expire date to 10m
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  // The function returns the not encrypted token for the email send. This un encrypted token will then be compared with the encrypted one stored in the DDBB for the password reset to work
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);
